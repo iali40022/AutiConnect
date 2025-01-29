@@ -7,8 +7,9 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Ignore processed data
-data/processed/
+# Ignore all files in data/processed except .txt files
+data/processed/*
+!data/processed/*.txt
 
 # Ignore API keys or sensitive configs
 *.env

@@ -1,0 +1,15 @@
+# Ignore the virtual environment
+env/
+.venv/
+
+# Ignore cache and temporary files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore processed data
+data/processed/
+
+# Ignore API keys or sensitive configs
+*.env
+secrets.json

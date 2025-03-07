@@ -34,13 +34,13 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 # Specify the path to your new refined PDF
-pdf_file_path = os.path.join("data", "raw", "Communication_Tips_Refined.pdf")
+pdf_file_path = os.path.join("data", "raw", "Visual_Supports_Refined.pdf ")
 
 # Extract and clean text
 cleaned_text = extract_text_from_pdf(pdf_file_path)
 
 # Save cleaned text as a processed file
-output_path = os.path.join("data", "processed", "communication_tips_cleaned.txt")
+output_path = os.path.join("data", "processed", "visual_supports_cleaned.txt")
 with open(output_path, "w", encoding="utf-8") as file:
     file.write(cleaned_text)
 

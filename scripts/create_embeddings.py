@@ -10,7 +10,8 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 processed_files = [
     os.path.join("data", "processed", "communication_tips_cleaned.txt"),
     os.path.join("data", "processed", "visual_supports_cleaned.txt"),  # Add the new file
-    os.path.join("data", "processed", "language_dev_in_autistic_children_refined.txt")
+    os.path.join("data", "processed", "language_dev_in_autistic_children_refined.txt"),
+    os.path.join("data", "processed", "understanding_developing_communication_refined.txt")
 ]
 
 # Initialize storage for text chunks and embeddings

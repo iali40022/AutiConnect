@@ -14,7 +14,8 @@ processed_files = [
     os.path.join("data", "processed", "teaching_nonverbal_children_refined.txt"),
     os.path.join("data", "processed", "anger_management_refined.txt"),
     os.path.join("data", "processed", "dealing_with_change_refined.txt"),
-    os.path.join("data", "processed", "self_injurious_behaviour_refined.txt")
+    os.path.join("data", "processed", "self_injurious_behaviour_refined.txt"),
+    os.path.join("data", "processed", "helpful_strategies_positive_behavior_refined.txt")
 
 
 

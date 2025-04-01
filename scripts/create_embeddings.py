@@ -11,7 +11,10 @@ processed_files = [
     os.path.join("data", "processed", "visual_supports_cleaned.txt"),  # Add the new file
     os.path.join("data", "processed", "language_dev_in_autistic_children_refined.txt"),
     os.path.join("data", "processed", "understanding_developing_communication_refined.txt"),
-    os.path.join("data", "processed", "teaching_nonverbal_children_refined.txt")
+    os.path.join("data", "processed", "teaching_nonverbal_children_refined.txt"),
+    os.path.join("data", "processed", "anger_management_refined.txt")
+
+
 
 ]
 

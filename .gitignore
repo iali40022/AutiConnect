@@ -14,3 +14,6 @@ data/processed/*
 # Ignore API keys or sensitive configs
 *.env
 secrets.json
+
+node_modules/
+

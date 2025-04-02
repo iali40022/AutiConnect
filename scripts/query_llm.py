@@ -52,43 +52,40 @@ def query_openai(context, user_query):
         }
     ]
 
-    response = openai.chat.completions.create(  # ✅ FIXED: Correct OpenAI API Call
+    response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
         temperature=0.7,
         max_tokens=500
     )
 
-    return response.choices[0].message.content  # ✅ FIXED: Correct response parsing
+    return response.choices[0].message.content
 
 
-# Interactive query loop
-while True:
-    query = input("\nEnter your query (or type 'exit' to quit): ").strip()
-    if query.lower() == "exit":
-        print("Exiting query tool.")
-        break
-    
-    retrieved_sections = query_faiss(query, top_k=5)
+# ✅ This only runs if the script is executed directly (not imported)
+if __name__ == "__main__":
+    while True:
+        query = input("\nEnter your query (or type 'exit' to quit): ").strip()
+        if query.lower() == "exit":
+            print("Exiting query tool.")
+            break
+        
+        retrieved_sections = query_faiss(query, top_k=5)
 
-    if not retrieved_sections:
-        print("\n⚠️ No highly relevant sections found. Try rewording your query.")
-        continue
+        if not retrieved_sections:
+            print("\n⚠️ No highly relevant sections found. Try rewording your query.")
+            continue
 
-    print("\n🔍 **Top Matching Sections:**\n")
+        print("\n🔍 **Top Matching Sections:**\n")
 
-    for idx, section in enumerate(retrieved_sections, start=1):
-        print(f"📌 **Section {idx}:**\n{section.strip()}\n")
-        print("-" * 50)  
+        for idx, section in enumerate(retrieved_sections, start=1):
+            print(f"📌 **Section {idx}:**\n{section.strip()}\n")
+            print("-" * 50)  
 
-    # Prepare context for OpenAI
-    combined_context = "\n\n".join(retrieved_sections)
+        combined_context = "\n\n".join(retrieved_sections)
+        ai_response = query_openai(combined_context, query)
 
-    # Get AI response
-    ai_response = query_openai(combined_context, query)
-
-    # Display AI-generated answer with credibility statement
-    print("\n💡 **AI-Generated Response:**\n")
-    formatted_response = ai_response.replace("For example,", "**For example:**").replace("Additionally,", "**Additionally:**")
-    print(f"📖 *Based on best practices and research, here are strategies to consider:*\n\n{formatted_response}")
-    print("=" * 80)
+        print("\n💡 **AI-Generated Response:**\n")
+        formatted_response = ai_response.replace("For example,", "**For example:**").replace("Additionally,", "**Additionally:**")
+        print(f"📖 *Based on best practices and research, here are strategies to consider:*\n\n{formatted_response}")
+        print("=" * 80)

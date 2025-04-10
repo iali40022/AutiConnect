@@ -8,7 +8,7 @@ app = FastAPI()
 # ✅ Allow requests from the frontend (Vite on port 5173)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Adjust if frontend runs elsewhere
+    allow_origins=["*"],  # Adjust if frontend runs elsewhere
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -33,11 +33,6 @@
   font-weight: bold;
 }
 
-.info-button {
-  color: #6c757d;
-  padding: 0.25rem;
-}
-
 /* Card Styles */
 .sidebar-card {
   border-color: #e0e0e0;
@@ -54,8 +49,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.question-card {
-  border-color: rgba(138, 43, 226, 0.3);
+.favorite-card {
+  border-color: rgba(255, 193, 7, 0.3);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -119,4 +114,95 @@
 /* Utility Classes */
 .whitespace-pre-wrap {
   white-space: pre-wrap;
+}
+
+/* Challenge Badge */
+.challenge-badge {
+  transition: all 0.2s ease;
+}
+
+.challenge-badge:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Dark Theme */
+.dark-theme {
+  background: linear-gradient(to bottom, #212529, #343a40);
+  color: #f8f9fa;
+}
+
+.dark-theme .navbar-custom {
+  background-color: rgba(33, 37, 41, 0.8) !important;
+}
+
+.dark-theme .footer {
+  background-color: rgba(33, 37, 41, 0.8);
+  border-top: 1px solid #495057;
+}
+
+.dark-theme .card {
+  background-color: #343a40;
+  border-color: #495057;
+}
+
+.dark-theme .card-header {
+  background-color: rgba(52, 58, 64, 0.8);
+}
+
+.dark-theme .form-control {
+  background-color: #495057;
+  border-color: #6c757d;
+  color: #f8f9fa;
+}
+
+.dark-theme .form-control:focus {
+  background-color: #495057;
+  color: #f8f9fa;
+}
+
+.dark-theme .text-muted {
+  color: #adb5bd !important;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  --contrast-bg: #000;
+  --contrast-text: #fff;
+  --contrast-border: #fff;
+  --contrast-focus: #ffff00;
+}
+
+.high-contrast.dark-theme {
+  --contrast-bg: #fff;
+  --contrast-text: #000;
+  --contrast-border: #000;
+  --contrast-focus: #0000ff;
+}
+
+.high-contrast .card,
+.high-contrast .navbar-custom,
+.high-contrast .footer {
+  background-color: var(--contrast-bg) !important;
+  color: var(--contrast-text) !important;
+  border-color: var(--contrast-border) !important;
+}
+
+.high-contrast .form-control {
+  background-color: var(--contrast-bg);
+  color: var(--contrast-text);
+  border: 2px solid var(--contrast-border);
+}
+
+.high-contrast .form-control:focus {
+  border-color: var(--contrast-focus);
+  box-shadow: 0 0 0 0.25rem var(--contrast-focus);
+}
+
+.high-contrast .btn {
+  border: 2px solid var(--contrast-border);
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }

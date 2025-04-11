@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Row,
@@ -14,15 +14,52 @@ import {
   Spinner,
   OverlayTrigger,
   Tooltip,
+  ListGroup,
+  Alert,
 } from "react-bootstrap";
 import "./App.css";
+import SettingsModal from "./components/SettingsModal";
+import {
+  getFavorites,
+  saveResponse,
+  deleteFavorite,
+  getSettings,
+} from "./utils/storage";
 
 function App() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("chat");
+
+  // Simplified personalization states
+  const [showSettings, setShowSettings] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [settings, setSettings] = useState({
+    fontSize: "medium",
+  });
+
+  // Load personalization data on component mount
+  useEffect(() => {
+    const loadedFavorites = getFavorites();
+    setFavorites(loadedFavorites);
+
+    const loadedSettings = getSettings();
+    if (loadedSettings) {
+      setSettings(loadedSettings);
+    }
+  }, []);
+
+  // Apply font size setting
+  useEffect(() => {
+    // Apply font size
+    document.documentElement.style.fontSize =
+      settings.fontSize === "small"
+        ? "14px"
+        : settings.fontSize === "large"
+        ? "18px"
+        : "16px";
+  }, [settings]);
 
   const handleQuery = async () => {
     if (!query.trim()) return;
@@ -39,9 +76,6 @@ function App() {
       const data = await response.json();
       const newAnswer = data.answer || "No response from backend.";
       setAnswer(newAnswer);
-
-      // Add to chat history
-      setChatHistory([...chatHistory, { question: query, answer: newAnswer }]);
     } catch (err) {
       setAnswer("Something went wrong. Please try again.");
     }
@@ -50,9 +84,35 @@ function App() {
   };
 
   const clearChat = () => {
-    setChatHistory([]);
     setQuery("");
     setAnswer("");
+  };
+
+  const handleSaveFavorite = () => {
+    if (!answer) return;
+
+    const favorite = {
+      id: Date.now().toString(),
+      question: query,
+      answer: answer,
+      timestamp: new Date().toISOString(),
+    };
+
+    saveResponse(favorite);
+    setFavorites([...favorites, favorite]);
+
+    // Show temporary success message
+    const successAlert = document.getElementById("save-success");
+    successAlert.classList.remove("d-none");
+    setTimeout(() => {
+      successAlert.classList.add("d-none");
+    }, 3000);
+  };
+
+  // Add delete functionality
+  const handleDeleteFavorite = (id) => {
+    deleteFavorite(id);
+    setFavorites(favorites.filter((fav) => fav.id !== id));
   };
 
   const exampleQuestions = [
@@ -71,17 +131,16 @@ function App() {
             <i className="bi bi-stars me-2"></i>
             <span className="gradient-text">AutiConnect</span>
           </Navbar.Brand>
+
           <OverlayTrigger
             placement="bottom"
-            overlay={
-              <Tooltip id="about-tooltip">
-                AutiConnect helps parents and carers of children with autism
-                with behavior management and communication strategies.
-              </Tooltip>
-            }
+            overlay={<Tooltip id="settings-tooltip">Adjust font size</Tooltip>}
           >
-            <Button variant="link" className="info-button">
-              <i className="bi bi-info-circle"></i>
+            <Button
+              variant="outline-dark"
+              onClick={() => setShowSettings(true)}
+            >
+              <i className="bi bi-gear"></i>
             </Button>
           </OverlayTrigger>
         </Container>
@@ -117,13 +176,83 @@ function App() {
                   variant="outline-secondary"
                   className="w-100"
                   onClick={clearChat}
-                  disabled={chatHistory.length === 0}
+                  disabled={!query && !answer}
                 >
                   <i className="bi bi-arrow-repeat me-2"></i>
-                  Clear Chat
+                  Clear
                 </Button>
               </Card.Footer>
             </Card>
+
+            {/* Favorites section */}
+            {favorites.length > 0 && (
+              <Card className="sidebar-card">
+                <Card.Header className="d-flex justify-content-between align-items-center">
+                  <Card.Title>Saved Responses</Card.Title>
+                  {favorites.length > 0 && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 text-danger"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete all saved responses?"
+                          )
+                        ) {
+                          localStorage.removeItem("auticonnect_favorites");
+                          setFavorites([]);
+                        }
+                      }}
+                    >
+                      Clear All
+                    </Button>
+                  )}
+                </Card.Header>
+                <ListGroup variant="flush">
+                  {favorites.slice(0, 5).map((fav) => (
+                    <ListGroup.Item
+                      key={fav.id}
+                      action
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <div
+                        className="text-truncate cursor-pointer"
+                        onClick={() => {
+                          setQuery(fav.question);
+                          setAnswer(fav.answer);
+                          setActiveTab("chat");
+                        }}
+                      >
+                        {fav.question}
+                      </div>
+                      <Button
+                        variant="link"
+                        className="text-danger p-0 ms-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteFavorite(fav.id);
+                        }}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </Button>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+                {favorites.length > 5 && (
+                  <Card.Footer>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0"
+                      onClick={() => setActiveTab("favorites")}
+                    >
+                      View all saved responses
+                    </Button>
+                  </Card.Footer>
+                )}
+              </Card>
+            )}
           </Col>
 
           <Col md={8} lg={9}>
@@ -136,12 +265,16 @@ function App() {
                   <Nav.Link eventKey="chat">Chat</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="history">History</Nav.Link>
+                  <Nav.Link eventKey="favorites">Saved Responses</Nav.Link>
                 </Nav.Item>
               </Nav>
 
               <Tab.Content>
                 <Tab.Pane eventKey="chat">
+                  <Alert id="save-success" variant="success" className="d-none">
+                    Response saved successfully!
+                  </Alert>
+
                   <Card className="mb-4 primary-card">
                     <Card.Header>
                       <Card.Title>Ask About Autism Support</Card.Title>
@@ -166,7 +299,7 @@ function App() {
                       <Button
                         variant="outline-secondary"
                         onClick={clearChat}
-                        disabled={chatHistory.length === 0}
+                        disabled={!query && !answer}
                         className="d-none d-sm-block"
                       >
                         <i className="bi bi-arrow-repeat me-2"></i>
@@ -202,11 +335,19 @@ function App() {
 
                   {answer && (
                     <Card className="answer-card">
-                      <Card.Header>
-                        <Card.Title className="d-flex align-items-center">
+                      <Card.Header className="d-flex justify-content-between align-items-center">
+                        <Card.Title className="d-flex align-items-center mb-0">
                           <i className="bi bi-stars me-2"></i>
                           Answer
                         </Card.Title>
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={handleSaveFavorite}
+                        >
+                          <i className="bi bi-bookmark-plus me-2"></i>
+                          Save Response
+                        </Button>
                       </Card.Header>
                       <Card.Body>
                         <div className="answer-content">
@@ -217,33 +358,76 @@ function App() {
                   )}
                 </Tab.Pane>
 
-                <Tab.Pane eventKey="history">
-                  {chatHistory.length > 0 ? (
-                    chatHistory.map((chat, index) => (
-                      <Card
-                        key={index}
-                        className={`mb-3 ${
-                          index % 2 === 0 ? "question-card" : "answer-card"
-                        }`}
-                      >
-                        <Card.Header>
-                          <Card.Title>
-                            {index % 2 === 0 ? "Question" : "Answer"}
-                          </Card.Title>
-                        </Card.Header>
-                        <Card.Body>
-                          <p className="whitespace-pre-wrap">
-                            {index % 2 === 0 ? chat.question : chat.answer}
-                          </p>
-                        </Card.Body>
-                      </Card>
-                    ))
+                <Tab.Pane eventKey="favorites">
+                  {favorites.length > 0 ? (
+                    <>
+                      <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="mb-0">Your Saved Responses</h5>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Are you sure you want to delete all saved responses?"
+                              )
+                            ) {
+                              localStorage.removeItem("auticonnect_favorites");
+                              setFavorites([]);
+                            }
+                          }}
+                        >
+                          <i className="bi bi-trash me-2"></i>
+                          Delete All
+                        </Button>
+                      </div>
+
+                      {favorites.map((fav) => (
+                        <Card key={fav.id} className="mb-3 favorite-card">
+                          <Card.Header className="d-flex justify-content-between align-items-center">
+                            <Card.Title className="mb-0">
+                              Saved Response
+                            </Card.Title>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleDeleteFavorite(fav.id)}
+                            >
+                              <i className="bi bi-trash"></i>
+                            </Button>
+                          </Card.Header>
+                          <Card.Body>
+                            <h6>Question:</h6>
+                            <p>{fav.question}</p>
+                            <h6>Answer:</h6>
+                            <p className="whitespace-pre-wrap">{fav.answer}</p>
+                          </Card.Body>
+                          <Card.Footer className="d-flex justify-content-between align-items-center">
+                            <small className="text-muted">
+                              {new Date(fav.timestamp).toLocaleString()}
+                            </small>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => {
+                                setQuery(fav.question);
+                                setAnswer(fav.answer);
+                                setActiveTab("chat");
+                              }}
+                            >
+                              <i className="bi bi-arrow-return-left me-1"></i>
+                              Use This
+                            </Button>
+                          </Card.Footer>
+                        </Card>
+                      ))}
+                    </>
                   ) : (
                     <Card className="text-center p-4">
                       <Card.Body>
                         <p className="text-muted">
-                          No chat history yet. Start a conversation to see your
-                          history here.
+                          No saved responses yet. Click "Save Response" on any
+                          answer to save it here.
                         </p>
                       </Card.Body>
                     </Card>
@@ -262,6 +446,14 @@ function App() {
           </p>
         </Container>
       </footer>
+
+      {/* Settings Modal - Simplified */}
+      <SettingsModal
+        show={showSettings}
+        onHide={() => setShowSettings(false)}
+        settings={settings}
+        setSettings={setSettings}
+      />
     </div>
   );
 }

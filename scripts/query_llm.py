@@ -38,28 +38,31 @@ def query_faiss(query, top_k=5, relevance_threshold=0.6):
 
 
 def query_openai(context, user_query):
-    """Generate a response from OpenAI based on the retrieved knowledge context."""
+    """Generate a response from OpenAI based ONLY on the provided context."""
     messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant that answers questions based on provided knowledge."
+            "content": (
+                "You are an assistant that only answers questions using the provided context below. "
+                "Do not answer based on prior knowledge. If the context is not relevant enough or doesn't answer the question, "
+                "reply with: 'I’m sorry, I couldn’t find enough information to answer that based on the provided materials.'"
+            )
         },
         {
             "role": "user",
-            "content": f"Here is some relevant context:\n{context}\n\n"
-                       f"Answer the following question based on this information: {user_query}.\n"
-                       f"Use smooth transitions like 'For example,' or 'Additionally,' to make the response more natural."
+            "content": f"Context:\n{context}\n\nQuestion: {user_query}"
         }
     ]
 
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages,
-        temperature=0.7,
+        temperature=0.2,  # Lower temperature makes responses more controlled
         max_tokens=500
     )
 
     return response.choices[0].message.content
+
 
 
 # ✅ This only runs if the script is executed directly (not imported)

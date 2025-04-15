@@ -116,17 +116,11 @@
   white-space: pre-wrap;
 }
 
-/* Challenge Badge */
-.challenge-badge {
-  transition: all 0.2s ease;
+.cursor-pointer {
+  cursor: pointer;
 }
 
-.challenge-badge:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Dark Theme */
+/* Dark Theme - Fixed to apply to entire app */
 .dark-theme {
   background: linear-gradient(to bottom, #212529, #343a40);
   color: #f8f9fa;
@@ -144,6 +138,12 @@
 .dark-theme .card {
   background-color: #343a40;
   border-color: #495057;
+  color: #f8f9fa;
+}
+
+/* Make sure all text in cards is visible in dark mode */
+.dark-theme .card {
+  color: #f8f9fa;
 }
 
 .dark-theme .card-header {
@@ -165,44 +165,174 @@
   color: #adb5bd !important;
 }
 
-/* High Contrast Mode */
-.high-contrast {
-  --contrast-bg: #000;
-  --contrast-text: #fff;
-  --contrast-border: #fff;
-  --contrast-focus: #ffff00;
+/* Ensure question text is also visible */
+.dark-theme .card-body .text-muted,
+.dark-theme .card-subtitle.text-muted {
+  color: #d0d0d0 !important;
 }
 
+.dark-theme .list-group-item {
+  background-color: #343a40;
+  color: #f8f9fa;
+  border-color: #495057;
+}
+
+.dark-theme .list-group-item:hover {
+  background-color: #495057;
+}
+
+.dark-theme .modal-content {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+/* Ensure modal text is visible */
+.dark-theme .modal-body {
+  color: #f8f9fa;
+}
+
+.dark-theme .close {
+  color: #f8f9fa;
+}
+
+.dark-theme .nav-tabs .nav-link {
+  color: #f8f9fa;
+}
+
+.dark-theme .nav-tabs .nav-link.active {
+  background-color: #343a40;
+  color: #f8f9fa;
+  border-color: #495057 #495057 #343a40;
+}
+
+/* Fix any headings in dark mode */
+.dark-theme h5,
+.dark-theme h6,
+.dark-theme .card-title {
+  color: #f8f9fa;
+}
+
+/* Update the dark theme text colors to ensure better readability */
+.dark-theme .answer-content p,
+.dark-theme .card-body p,
+.dark-theme .favorite-card p,
+.dark-theme .answer-card p {
+  color: #f8f9fa !important;
+}
+
+.dark-theme .card-body h6 {
+  color: #f8f9fa !important;
+}
+
+/* Fix any remaining text visibility issues */
+.dark-theme .whitespace-pre-wrap {
+  color: #f8f9fa;
+}
+
+/* Make sure tab content is visible */
+.dark-theme .tab-content {
+  color: #f8f9fa;
+}
+
+/* High Contrast Mode - Fixed implementation */
 .high-contrast.dark-theme {
-  --contrast-bg: #fff;
-  --contrast-text: #000;
-  --contrast-border: #000;
-  --contrast-focus: #0000ff;
+  background: #000;
+  color: #fff;
 }
 
-.high-contrast .card,
-.high-contrast .navbar-custom,
-.high-contrast .footer {
-  background-color: var(--contrast-bg) !important;
-  color: var(--contrast-text) !important;
-  border-color: var(--contrast-border) !important;
+.high-contrast.dark-theme .card,
+.high-contrast.dark-theme .navbar-custom,
+.high-contrast.dark-theme .footer,
+.high-contrast.dark-theme .list-group-item,
+.high-contrast.dark-theme .modal-content,
+.high-contrast.dark-theme .nav-tabs .nav-link.active {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
 }
 
-.high-contrast .form-control {
-  background-color: var(--contrast-bg);
-  color: var(--contrast-text);
-  border: 2px solid var(--contrast-border);
+.high-contrast.dark-theme .form-control {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
 }
 
-.high-contrast .form-control:focus {
-  border-color: var(--contrast-focus);
-  box-shadow: 0 0 0 0.25rem var(--contrast-focus);
+.high-contrast.dark-theme .btn {
+  border: 2px solid #fff;
+  color: #fff;
+  background-color: #000;
 }
 
-.high-contrast .btn {
-  border: 2px solid var(--contrast-border);
+.high-contrast.dark-theme .btn-primary {
+  background-color: #fff;
+  color: #000;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.high-contrast:not(.dark-theme) {
+  background: #fff;
+  color: #000;
+}
+
+.high-contrast:not(.dark-theme) .card,
+.high-contrast:not(.dark-theme) .navbar-custom,
+.high-contrast:not(.dark-theme) .footer,
+.high-contrast:not(.dark-theme) .list-group-item,
+.high-contrast:not(.dark-theme) .modal-content,
+.high-contrast:not(.dark-theme) .nav-tabs .nav-link.active {
+  background-color: #fff !important;
+  color: #000 !important;
+  border-color: #000 !important;
+  border-width: 2px;
+}
+
+.high-contrast:not(.dark-theme) .form-control {
+  background-color: #fff;
+  color: #000;
+  border: 2px solid #000;
+}
+
+.high-contrast:not(.dark-theme) .btn {
+  border: 2px solid #000;
+}
+
+.high-contrast:not(.dark-theme) .btn-primary {
+  background-color: #000;
+  color: #fff;
+}
+
+.high-contrast .gradient-text {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: inherit;
+}
+
+.high-contrast .submit-button {
+  background: none;
+}
+
+.high-contrast.dark-theme .submit-button {
+  background-color: #fff;
+  color: #000;
+}
+
+.high-contrast:not(.dark-theme) .submit-button {
+  background-color: #000;
+  color: #fff;
+}
+
+/* Language selector styles */
+.language-selector {
+  margin-right: 10px;
+}
+
+/* Text-to-speech button styles */
+.tts-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tts-button i {
+  margin-right: 5px;
 }

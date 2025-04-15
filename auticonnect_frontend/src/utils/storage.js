@@ -33,6 +33,9 @@ export const getSettings = () => {
   if (!settings) {
     return {
       fontSize: "medium",
+      theme: "light",
+      highContrast: false,
+      language: "en",
     };
   }
   return JSON.parse(settings);

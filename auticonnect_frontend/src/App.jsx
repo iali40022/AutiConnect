@@ -17,6 +17,7 @@ import {
   ListGroup,
   Alert,
   ButtonGroup,
+  Dropdown,
 } from "react-bootstrap";
 import "./App.css";
 import SettingsModal from "./components/SettingsModal";
@@ -27,6 +28,7 @@ import {
   getSettings,
   saveSettings,
 } from "./utils/storage";
+import { translations } from "./utils/translations";
 
 function App() {
   const [query, setQuery] = useState("");
@@ -43,6 +45,7 @@ function App() {
     fontSize: "medium",
     theme: "light",
     highContrast: false,
+    language: "en",
   });
 
   // Load personalization data on component mount
@@ -98,7 +101,10 @@ function App() {
       const response = await fetch("http://127.0.0.1:8000/query", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({
+          query,
+          language: settings.language, // <-- this is essential
+        }),
       });
 
       const data = await response.json();
@@ -160,6 +166,14 @@ function App() {
     });
   };
 
+  // Language change
+  const changeLanguage = (lang) => {
+    setSettings({
+      ...settings,
+      language: lang,
+    });
+  };
+
   // Text-to-Speech functionality
   const speakText = (text) => {
     if (!text) return;
@@ -169,6 +183,14 @@ function App() {
 
     // Create a new utterance
     const utterance = new SpeechSynthesisUtterance(text);
+
+    // Set language based on current settings
+    utterance.lang =
+      settings.language === "es"
+        ? "es-ES"
+        : settings.language === "fr"
+        ? "fr-FR"
+        : "en-US";
 
     // Event handlers
     utterance.onstart = () => setIsSpeaking(true);
@@ -186,12 +208,19 @@ function App() {
     }
   };
 
+  // Get translated text
+  const t = (key) => {
+    return (
+      translations[settings.language]?.[key] || translations.en[key] || key
+    );
+  };
+
   const exampleQuestions = [
-    "What are effective communication strategies for non-verbal autistic children?",
-    "How can I help an autistic person process information better?",
-    'How can I help an autistic person understand "no"?',
-    "What is AAC and what are some examples of it?",
-    "What strategies can help with meltdowns?",
+    t("example_question_1"),
+    t("example_question_2"),
+    t("example_question_3"),
+    t("example_question_4"),
+    t("example_question_5"),
   ];
 
   return (
@@ -208,12 +237,50 @@ function App() {
           </Navbar.Brand>
 
           <div className="d-flex align-items-center">
+            {/* Language Selector */}
+            <Dropdown className="me-2">
+              <Dropdown.Toggle
+                variant="outline-secondary"
+                id="language-dropdown"
+                size="sm"
+              >
+                <i className="bi bi-globe me-1"></i>
+                {settings.language === "en"
+                  ? "EN"
+                  : settings.language === "es"
+                  ? "ES"
+                  : "FR"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  onClick={() => changeLanguage("en")}
+                  active={settings.language === "en"}
+                >
+                  English
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => changeLanguage("es")}
+                  active={settings.language === "es"}
+                >
+                  Español
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={() => changeLanguage("fr")}
+                  active={settings.language === "fr"}
+                >
+                  Français
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
             {/* Theme Toggle */}
             <OverlayTrigger
               placement="bottom"
               overlay={
                 <Tooltip id="theme-tooltip">
-                  {settings.theme === "light" ? "Dark Mode" : "Light Mode"}
+                  {settings.theme === "light"
+                    ? t("dark_mode")
+                    : t("light_mode")}
                 </Tooltip>
               }
             >
@@ -236,7 +303,9 @@ function App() {
               placement="bottom"
               overlay={
                 <Tooltip id="contrast-tooltip">
-                  {settings.highContrast ? "Normal Contrast" : "High Contrast"}
+                  {settings.highContrast
+                    ? t("normal_contrast")
+                    : t("high_contrast")}
                 </Tooltip>
               }
             >
@@ -253,7 +322,9 @@ function App() {
             {/* Settings Button */}
             <OverlayTrigger
               placement="bottom"
-              overlay={<Tooltip id="settings-tooltip">Adjust settings</Tooltip>}
+              overlay={
+                <Tooltip id="settings-tooltip">{t("adjust_settings")}</Tooltip>
+              }
             >
               <Button
                 variant="outline-secondary"
@@ -272,9 +343,9 @@ function App() {
           <Col md={4} lg={3} className="d-none d-md-block">
             <Card className="mb-4 sidebar-card">
               <Card.Header>
-                <Card.Title>Example Questions</Card.Title>
+                <Card.Title>{t("example_questions")}</Card.Title>
                 <Card.Subtitle className="text-muted">
-                  Click on any question to get started
+                  {t("click_question")}
                 </Card.Subtitle>
               </Card.Header>
               <Card.Body>
@@ -300,7 +371,7 @@ function App() {
                   disabled={!query && !answer}
                 >
                   <i className="bi bi-arrow-repeat me-2"></i>
-                  Clear
+                  {t("clear")}
                 </Button>
               </Card.Footer>
             </Card>
@@ -309,24 +380,20 @@ function App() {
             {favorites.length > 0 && (
               <Card className="sidebar-card">
                 <Card.Header className="d-flex justify-content-between align-items-center">
-                  <Card.Title>Saved Responses</Card.Title>
+                  <Card.Title>{t("saved_responses")}</Card.Title>
                   {favorites.length > 0 && (
                     <Button
                       variant="link"
                       size="sm"
                       className="p-0 text-danger"
                       onClick={() => {
-                        if (
-                          window.confirm(
-                            "Are you sure you want to delete all saved responses?"
-                          )
-                        ) {
+                        if (window.confirm(t("confirm_delete_all"))) {
                           localStorage.removeItem("auticonnect_favorites");
                           setFavorites([]);
                         }
                       }}
                     >
-                      Clear All
+                      {t("clear_all")}
                     </Button>
                   )}
                 </Card.Header>
@@ -368,7 +435,7 @@ function App() {
                       className="p-0"
                       onClick={() => setActiveTab("favorites")}
                     >
-                      View all saved responses
+                      {t("view_all")}
                     </Button>
                   </Card.Footer>
                 )}
@@ -383,25 +450,26 @@ function App() {
             >
               <Nav variant="tabs" className="mb-3">
                 <Nav.Item>
-                  <Nav.Link eventKey="chat">Chat</Nav.Link>
+                  <Nav.Link eventKey="chat">{t("chat")}</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="favorites">Saved Responses</Nav.Link>
+                  <Nav.Link eventKey="favorites">
+                    {t("saved_responses")}
+                  </Nav.Link>
                 </Nav.Item>
               </Nav>
 
               <Tab.Content>
                 <Tab.Pane eventKey="chat">
                   <Alert id="save-success" variant="success" className="d-none">
-                    Response saved successfully!
+                    {t("response_saved")}
                   </Alert>
 
                   <Card className="mb-4 primary-card">
                     <Card.Header>
-                      <Card.Title>Ask About Autism Support</Card.Title>
+                      <Card.Title>{t("ask_title")}</Card.Title>
                       <Card.Subtitle className="text-muted">
-                        Ask any question about autism support, behavior
-                        management, or communication strategies
+                        {t("ask_subtitle")}
                       </Card.Subtitle>
                     </Card.Header>
                     <Card.Body>
@@ -409,7 +477,7 @@ function App() {
                         <Form.Control
                           as="textarea"
                           rows={4}
-                          placeholder="Enter your question here..."
+                          placeholder={t("question_placeholder")}
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           className="query-textarea"
@@ -424,7 +492,7 @@ function App() {
                         className="d-none d-sm-block"
                       >
                         <i className="bi bi-arrow-repeat me-2"></i>
-                        Clear
+                        {t("clear")}
                       </Button>
                       <Button
                         variant="primary"
@@ -442,12 +510,12 @@ function App() {
                               aria-hidden="true"
                               className="me-2"
                             />
-                            Processing...
+                            {t("processing")}
                           </>
                         ) : (
                           <>
                             <i className="bi bi-send me-2"></i>
-                            Submit
+                            {t("submit")}
                           </>
                         )}
                       </Button>
@@ -459,7 +527,7 @@ function App() {
                       <Card.Header className="d-flex justify-content-between align-items-center">
                         <Card.Title className="d-flex align-items-center mb-0">
                           <i className="bi bi-stars me-2"></i>
-                          Answer
+                          {t("answer")}
                         </Card.Title>
                         <div>
                           <ButtonGroup size="sm" className="me-2">
@@ -469,7 +537,7 @@ function App() {
                                 onClick={stopSpeech}
                               >
                                 <i className="bi bi-pause-fill me-1"></i>
-                                Stop Reading
+                                {t("stop_reading")}
                               </Button>
                             ) : (
                               <Button
@@ -477,7 +545,7 @@ function App() {
                                 onClick={() => speakText(answer)}
                               >
                                 <i className="bi bi-volume-up me-1"></i>
-                                Read Aloud
+                                {t("read_aloud")}
                               </Button>
                             )}
                           </ButtonGroup>
@@ -487,7 +555,7 @@ function App() {
                             onClick={handleSaveFavorite}
                           >
                             <i className="bi bi-bookmark-plus me-2"></i>
-                            Save Response
+                            {t("save_response")}
                           </Button>
                         </div>
                       </Card.Header>
@@ -504,23 +572,19 @@ function App() {
                   {favorites.length > 0 ? (
                     <>
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h5 className="mb-0">Your Saved Responses</h5>
+                        <h5 className="mb-0">{t("your_saved_responses")}</h5>
                         <Button
                           variant="outline-danger"
                           size="sm"
                           onClick={() => {
-                            if (
-                              window.confirm(
-                                "Are you sure you want to delete all saved responses?"
-                              )
-                            ) {
+                            if (window.confirm(t("confirm_delete_all"))) {
                               localStorage.removeItem("auticonnect_favorites");
                               setFavorites([]);
                             }
                           }}
                         >
                           <i className="bi bi-trash me-2"></i>
-                          Delete All
+                          {t("delete_all")}
                         </Button>
                       </div>
 
@@ -528,7 +592,7 @@ function App() {
                         <Card key={fav.id} className="mb-3 favorite-card">
                           <Card.Header className="d-flex justify-content-between align-items-center">
                             <Card.Title className="mb-0">
-                              Saved Response
+                              {t("saved_response")}
                             </Card.Title>
                             <div>
                               <Button
@@ -549,9 +613,9 @@ function App() {
                             </div>
                           </Card.Header>
                           <Card.Body>
-                            <h6>Question:</h6>
+                            <h6>{t("question")}:</h6>
                             <p>{fav.question}</p>
-                            <h6>Answer:</h6>
+                            <h6>{t("answer")}:</h6>
                             <p className="whitespace-pre-wrap">{fav.answer}</p>
                           </Card.Body>
                           <Card.Footer className="d-flex justify-content-between align-items-center">
@@ -568,7 +632,7 @@ function App() {
                               }}
                             >
                               <i className="bi bi-arrow-return-left me-1"></i>
-                              Use This
+                              {t("use_this")}
                             </Button>
                           </Card.Footer>
                         </Card>
@@ -577,10 +641,7 @@ function App() {
                   ) : (
                     <Card className="text-center p-4">
                       <Card.Body>
-                        <p className="text-muted">
-                          No saved responses yet. Click "Save Response" on any
-                          answer to save it here.
-                        </p>
+                        <p className="text-muted">{t("no_saved_responses")}</p>
                       </Card.Body>
                     </Card>
                   )}
@@ -593,9 +654,7 @@ function App() {
 
       <footer className="footer mt-auto py-3">
         <Container className="text-center">
-          <p className="text-muted mb-0">
-            AutiConnect - Supporting parents and carers of children with autism
-          </p>
+          <p className="text-muted mb-0">{t("footer_text")}</p>
         </Container>
       </footer>
 
@@ -605,6 +664,7 @@ function App() {
         onHide={() => setShowSettings(false)}
         settings={settings}
         setSettings={setSettings}
+        t={t}
       />
     </div>
   );

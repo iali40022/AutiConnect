@@ -1,6 +1,6 @@
 // Helper functions for local storage
 
-// Favorites/saved responses
+// Favourites/saved responses
 export const saveResponse = (response) => {
   const favorites = getFavorites();
   favorites.push(response);

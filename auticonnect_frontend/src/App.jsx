@@ -38,7 +38,7 @@ function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const speechSynthRef = useRef(window.speechSynthesis);
 
-  // Personalization states
+  // Personalisation states
   const [showSettings, setShowSettings] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [settings, setSettings] = useState({
@@ -48,7 +48,7 @@ function App() {
     language: "en",
   });
 
-  // Load personalization data on component mount
+  // Load personalisation data on component mount
   useEffect(() => {
     const loadedFavorites = getFavorites();
     setFavorites(loadedFavorites);
@@ -103,7 +103,7 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query,
-          language: settings.language, // <-- this is essential
+          language: settings.language,
         }),
       });
 
@@ -376,7 +376,7 @@ function App() {
               </Card.Footer>
             </Card>
 
-            {/* Favorites section */}
+            {/* Favourites section */}
             {favorites.length > 0 && (
               <Card className="sidebar-card">
                 <Card.Header className="d-flex justify-content-between align-items-center">

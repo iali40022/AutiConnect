@@ -18,12 +18,9 @@ processed_files = [
     os.path.join("data", "processed", "helpful_strategies_positive_behavior_refined.txt"),
     os.path.join("data", "processed", "obsessions_repetitive_behaviour_refined.txt")
 
-
-
-
 ]
 
-# Initialize storage for text chunks and embeddings
+# Initialise storage for text chunks and embeddings
 all_chunks = []
 all_embeddings = []
 
@@ -57,7 +54,7 @@ if all_embeddings:
         for chunk in all_chunks:
             f.write(chunk + "\n---\n")
 
-    print("✅ Embeddings for all documents generated and stored successfully.")
+    print(" Embeddings for all documents generated and stored successfully.")
 
 else:
-    print("⚠️ No valid text files found for embedding.")
+    print(" No valid text files found for embedding.")
